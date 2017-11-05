@@ -1,0 +1,145 @@
+#!/usr/bin/python3
+
+# =========================================================================================================================
+# "But in the end scrappers are hard coded, Never rely on them." Badshah Namdar Gaohar
+#
+# "Search the Khoj 0.1" [working in Nov 2017] is a simple interactive python utility to fetch basic data from imdb
+# to save time and efforts of the movie geeks. (Hail Sir Ananta Jalil)
+#
+# To Dos:
+# 1. Formatting outputs with regex
+# 2. Optimised Error Handling
+# 3. Adding Rotten Tomato module
+#
+#   Faquir Foysol Nov 5, 2017, Sunday (Cuzco, Machu Picchu, Peru)
+# =========================================================================================================================
+
+
+
+
+# ===================== Dependency Check ==================================
+
+# check if the system is NT-based and get out
+import os
+
+if os.name == "nt":
+    print ("Gate Outta !! Be a Bill(ion)aire bra :D")
+    exit(0)
+
+
+# check python version info and dependency
+import sys
+
+# returns tuple (maj,min,macro), compare the major version if python 3.x
+if sys.version_info[0] < (3):
+    print("use Python 3.x plz. Current version: %s" %sys.version_info)
+    exit(0)
+
+# now try to import requests and BeautifulSoup
+
+try:
+    from bs4 import BeautifulSoup
+except ImportError as Err:
+    print("%s" % Err)
+    exit(0)
+try:
+    import requests
+except ImportError as Err:
+    print("%s" % Err)
+    exit(0)
+# Sexy Regex for advanced text formatting [would add advanced ops after taming this soon :) ]
+import re
+
+
+# ================ Decorative Class ======================================
+class color:
+    BPURPLE = '\033[1;95m'
+    BBLUE = '\033[1;94m'
+    GREEN = '\033[92m'
+    BGREEN = "\033[1;92m"
+    WARNING = '\033[1;93m'
+    ERROR = '\033[1;91m'
+    Default = '\033[0m'  # Default white
+    UNDERLINE = '\033[4m'
+
+
+# ================= Functions =====================================
+
+
+def search_results(raw_html):
+    # make a soup of raw html
+    soupObj = BeautifulSoup(raw_html, "lxml")
+    result = soupObj.find_all("td", {"class": "result_text"})
+    if len(result) <= 0:
+        print(color.ERROR + "[-]No Result Found")
+    # print(len(result))
+    for content in result:
+        if "tt" in content.a.get("href"): # if there's a movie title like /^tt[0-9]/
+            print(color.BGREEN + "title: %s id: %s" % (content.get_text(), content.a.get("href").split("/")[2]))
+        else:
+            print(color.BPURPLE + content.get_text())
+
+
+def movie_summary(raw_html):
+
+    soupObj = BeautifulSoup(raw_html, "lxml")
+
+    details = soupObj.find_all("div", {"class": "summary_text"})
+    if details is None:
+        print(color.ERROR + "[-]Sorry No Summary Available.")
+        exit(0)
+    else:
+        title = soupObj.find("h1", {"itemprop": "name"})
+        print("Title: %s" % title.text)
+
+        rating = soupObj.find("div", {"class": "ratingValue"})
+        print("Rating: %s" % rating.text.lstrip())  # strip aligned to left at least cock sucka bunch of whitespaces :(
+
+        print("Genre: ")
+
+        genre = soupObj.find_all("span", {"itemprop": "genre"})
+        for gen in genre:
+            print(gen.text.lstrip())
+        print("Summary: ")
+        for detail in details:
+            print(detail.get_text().lstrip())
+
+        credits = soupObj.find_all("div", {"class": "credit_summary_item"})
+        for credit in credits:
+            print(credit.get_text().lstrip())
+
+
+# ===================================================================
+
+
+while True:
+    print(color.BBLUE + "keywords, title-id(tt1234567), type qut or \"ctl+z\": " + color.Default)
+    case = input(">>> ")
+    if case == "qut" or case == "EOF":
+        break
+    # if input is "tt"followed by exactly seven digits then it's a movie title buddy ....
+    # In fact going to learn sexy regex this fall <3 ummmmmm she's fuckin Hot <3
+    elif re.match(r'^tt[0-9]{7}', case):
+
+        url = "http://www.imdb.com/title/"
+        search = case
+        search_url = url + search
+        print(color.BGREEN + "\nfetching data from imdb wait........\n")
+        try:
+            response = requests.get(search_url)
+            raw_html = response.text
+            movie_summary(raw_html)
+        except Exception as exp:
+            print(exp)
+
+    elif str(case):
+        url = "http://www.imdb.com/find?ref_=nv_sr_fn&q="
+        search = case
+        search_url = url + search.replace(" ", "+") + "&s=all"
+        print(color.BGREEN + "\nsearching imdb for \"%s\".........\n" % case)
+        try:
+            response = requests.get(search_url)
+            raw_html = response.text
+            search_results(raw_html)
+        except Exception as exp:
+            print(exp)
