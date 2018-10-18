@@ -15,6 +15,12 @@
 # =========================================================================================================================
 
 
+# Edited on Oct 18, 2018 (Thursday) 3:00PM..... RIP Bachhuda, We'll never forget you............
+
+
+
+
+
 
 
 # ===================== Dependency Check ==================================
@@ -66,6 +72,7 @@ class color:
 # ================= Functions =====================================
 
 
+
 def search_results(raw_html):
     # make a soup of raw html
     soupObj = BeautifulSoup(raw_html, "lxml")
@@ -75,41 +82,54 @@ def search_results(raw_html):
     # print(len(result))
     for content in result:
         if "tt" in content.a.get("href"): # if there's a movie title like /^tt[0-9]/
-            print(color.BGREEN + "title: %s id: %s" % (content.get_text(), content.a.get("href").split("/")[2]))
+            print(color.BPURPLE + "title: %s id: %s" % (content.get_text(), content.a.get("href").split("/")[2]))
         else:
-            print(color.BPURPLE + content.get_text())
+            print(color.Default + content.get_text())
+
+
 
 
 def movie_summary(raw_html):
+    
+    # get a soup of raw html     
+    soupObj = BeautifulSoup(raw_html, "html.parser")
+    # a bunch of if-else tree to handle error. this needs development
+    # get title wrapper
+    title = soupObj.find_all("div", {"class":"title_wrapper"})
+    if title is None:
+        print(color.ERROR+"[-] No title wrapper found....")
+    else:
+        print_details(title)
 
-    soupObj = BeautifulSoup(raw_html, "lxml")
-
+# get ratings .
+    rating = soupObj.find("div", {"class": "ratingValue"})
+    if rating is None:
+        print(color.ERROR+"[-]No ratings found.....")
+    else:
+        print("Rating: %s" % rating.text.lstrip()) 
+    
+    # movie details
     details = soupObj.find_all("div", {"class": "summary_text"})
     if details is None:
-        print(color.ERROR + "[-]Sorry No Summary Available.")
-        exit(0)
+        print(color.ERROR+"[-]No details found.......")
     else:
-        title = soupObj.find("h1", {"itemprop": "name"})
-        print("Title: %s" % title.text)
-
-        rating = soupObj.find("div", {"class": "ratingValue"})
-        print("Rating: %s" % rating.text.lstrip())  # strip aligned to left at least cock sucka bunch of whitespaces :(
-
-        print("Genre: ")
-
-        genre = soupObj.find_all("span", {"itemprop": "genre"})
-        for gen in genre:
-            print(gen.text.lstrip())
-        print("Summary: ")
-        for detail in details:
-            print(detail.get_text().lstrip())
-
-        credits = soupObj.find_all("div", {"class": "credit_summary_item"})
-        for credit in credits:
-            print(credit.get_text().lstrip())
+        print_details(details)
+    
+    
+    # credit lines
+    credits = soupObj.find_all("div", {"class": "credit_summary_item"})
+    if credits is None:
+        print_details(color.ERROR+"[-]No credits found.........")
+    else:
+        print_details(credits)
 
 
-# ===================================================================
+
+def print_details(resultSet):
+    for result in resultSet:
+        print(result.get_text().lstrip())
+
+# =====================Get into an intractive session===============================
 
 
 while True:
@@ -129,6 +149,7 @@ while True:
             response = requests.get(search_url)
             raw_html = response.text
             movie_summary(raw_html)
+            response.close()
         except Exception as exp:
             print(exp)
 
@@ -141,5 +162,6 @@ while True:
             response = requests.get(search_url)
             raw_html = response.text
             search_results(raw_html)
+            response.close()
         except Exception as exp:
             print(exp)
