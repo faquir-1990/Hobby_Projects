@@ -12,7 +12,7 @@ import re
 
 
 ##########################################################################################################
-# imdb_ia is an iteractive python script for doing basic search and details of a movie. 
+# imdb_ia is an iteractive python script for doing basic search and getting details of a movie. 
 # mainly this utility is a personal initiative to minimize less time on colorful browser
 # and getting basic info about movies before download.
 # Also a part of 2019 initiative to understand how does network work, programming about it 
