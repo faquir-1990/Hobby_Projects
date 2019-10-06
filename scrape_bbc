@@ -1,0 +1,56 @@
+#!/usr/bin/env python
+
+# ############ SUMMARY ############################
+# Very basic and self explanatory bbc news scraper
+# Faquir Foysol Fri Mar 15 00:10:20 2019
+# #################################################
+
+import requests 
+from bs4 import BeautifulSoup
+
+
+
+url = "https://www.bbc.com/news"
+
+
+# OK I'm not a robot ... Request from a fake browser 
+browser = { "user-agent":"Mozilla/5.0 (Windows NT 6.2; Win64; x64) \
+            AppleWebKit/537.36 (KHTML, like Gecko) \
+            Chrome/32.0.1667.0 Safari/537.36" 
+        }
+
+
+response = requests.get(url,headers=browser)
+
+raw_page = BeautifulSoup(response.text,"html.parser") # parse raw text into html
+
+response.close() # don't forget to close the connection 
+
+
+
+# Hard coded, site specific ... Recode when they change site layout... press F12 or query (Q) the contentent when developing
+
+stories = raw_page.find_all("div", {"class":"gs-c-promo"})
+
+
+for story in stories:
+
+    heading = story.find("h3")
+    print("head: ", heading.text.encode('utf-8'))
+    
+    summary = story.find("p")
+    if summary:
+        print("summary: ", summary.text.encode('utf-8'))
+    
+    
+    
+    link = story.find("a")
+
+    if link["href"].startswith("htt"):  # http(s); not going for sexy regex tonight :| 
+        print("link: ", link["href"]) # print full url
+    
+    else:
+        print("link: https://www.bbc.com"+ link["href"]) # add protocol and root to link 
+
+    print(" ")
+
