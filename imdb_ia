@@ -12,17 +12,15 @@ import re
 
 
 ##########################################################################################################
-# imdb_ia is an iteractive python script for doing basic search and getting details of a movie. 
-# mainly this utility is a personal initiative to ensure less time on colorful browser
+# imdb_ia is an interactive python script for doing basic search and details of a movie. 
+# mainly this utility is a personal initiative to minimize less time on colorful browser
 # and getting basic info about movies before download.
 # Also a part of 2019 initiative to understand how does network work, programming about it 
 # and some geeky query. 
 # [this script is an extended version of previously hard coded search_the_khoj]
-# link: https://github.com/faquir-1990/Hobby_Projects/blob/master/stk 
-#
 # Faquir Foysol Jan. 15, 2018 Tuesday....
-#############################################################################################################
-
+#
+############################################################################################################
 
 
 
@@ -63,7 +61,7 @@ def search_result(raw_html):
 # routine to fetch json data from raw html
 def html_to_json(raw_html):
      
-    # scrape raw json data
+    # scrape raw json data from raw html
     json_data = raw_html.find(attrs={"type":"application/ld+json"})
  
     if json_data is None:
@@ -82,7 +80,7 @@ def parse_loaded_json(loaded_json):
     
     keys_of_interest = [ "name","genre","contentRating", "image","director",
                          "duration","actor", "description",
-                        "aggregateRating", "dateCreated" 
+                        "aggregateRating",  
                        ]    
        
     for key in keys_of_interest:
@@ -133,17 +131,17 @@ def main():
     url = "https://www.imdb.com/title/"
     search = "https://www.imdb.com/find?ref_=nv_sr_fn&q="
   
-    # fire up pseudo 
+    # fire up a pseudo shell-like interactive session
     while True:
         
-        print("keywords, title-id(tt1234567), type qut or \"ctl+z\":" )
+        print("keywords, title-id(tt1234567), type qut or \"ctl+z\":" ) # please tell me how to catch ctl+d interrupt
         case = raw_input("[imdb_ia]% ")
 
-        if re.match("^tt[0-9]{7}",case):
+        if re.match("^tt[0-9]{7}",case): # if user gives an id as input -- tt following 7 ints
             movie_details = url + case
             raw_html = get_raw_html(movie_details)
             
-            if html_to_json(raw_html):
+            if html_to_json(raw_html): # if json data or movie details found
                 loaded_json = html_to_json(raw_html)
                 parse_loaded_json(loaded_json)
 
