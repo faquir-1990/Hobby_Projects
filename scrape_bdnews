@@ -4,9 +4,8 @@ import requests
 from bs4 import BeautifulSoup
 import time
 import os
-
 #==========================================================================
-# Shahabaaz (0.1) is a simple cli-based web scrapping script that gives
+# scrape_bdnews is a simple cli-based web scrapping script that gives
 # bdnews24.com updates on realtime according to user expected interval
 # 
 # Changable macro: TIMEOUT
@@ -18,30 +17,20 @@ import os
 
 TIMEOUT = 300 # 60s * 5m == 300s
 
-
-
-
 def get_news():
     url = "https://bdnews24.com/"
     response =requests.get(url)
     html = response.text
     soup = BeautifulSoup(html, "lxml")
-    
-    #print(soup.text)
-    #print(soup.prettify())
-    
     # Main data collection from here
     titles = soup.find_all("div", {"class":"article news first default "})
     collect = []
-
     for title in titles:
             collect.append(title.get_text().replace("\n", " "))
-            #print(type(title))
-
-    #print(collect)
     for title in collect:
         print(title.lstrip())
         print()
+
 def main():
     get_news()
 
@@ -52,4 +41,3 @@ if __name__ == "__main__":
         main()
         time.sleep(TIMEOUT)
         os.system("printf '\033c'") # clear the screen literally
-# end of code
