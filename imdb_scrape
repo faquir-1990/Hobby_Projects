@@ -15,6 +15,12 @@ import signal
 # Faquir Foysol Jan. 15, 2018 Tuesday....
 ###########################################################################################################
 
+# handle signal 
+
+def handle_signal(rcv_sig, frame):
+    print("Exiting.....")
+    exit(0)
+
 # routine for fetching raw html data
 def get_raw_html(url): 
     try:
@@ -85,8 +91,8 @@ def main():
     search = "https://www.imdb.com/find?ref_=nv_sr_fn&q="
     # fire up a pseudo shell-like interactive session
     while True:
-        print("keywords, title-id(tt1234567), type qut or \"ctl+z\":" ) 
-        case = raw_input("[imdb_interactive]% ")
+        print("keywords, title-id(tt1234567), press ctl+z or ctl+c:" ) 
+        case = input("[imdb_interactive]% ")
         if re.match("^tt[0-9]{7}",case): # if user gives an id as input -- tt following 7 ints
             movie_details = url + case
             raw_html = get_raw_html(movie_details)
@@ -100,5 +106,5 @@ def main():
             search_result(raw_html)
 
 if  __name__ == '__main__':
+    signal.signal(signal.SIGINT,handle_signal) # exit with ctrl+c 
     main()
-
